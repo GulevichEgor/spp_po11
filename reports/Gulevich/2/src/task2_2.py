@@ -113,7 +113,7 @@ def create_driver():
 
 
 def create_trip():
-    print("\nСоздание рейса:")
+    print("\nСоздание рейсa:")
     trip_id = input("Введите ID рейса: ")
     destination = input("Введите пункт назначения: ")
     return Trip(trip_id, destination)
@@ -139,7 +139,7 @@ def handle_assignment(dispatcher, drivers, cars, trips):
     print("Выберите водителя:")
     for i, driver in enumerate(drivers):
         print(f"{i + 1}. {driver}")
-    driver_idx = int(input("Номер водитора: ")) - 1
+    driver_idx = int(input("Номер водителя: ")) - 1
 
     print("Выберите автомобиль:")
     for i, car in enumerate(cars):
@@ -193,9 +193,9 @@ def main():
         "5": lambda: handle_complete_trip(drivers),
         "6": lambda: handle_request_repair(drivers),
         "7": lambda: handle_suspend_driver(dispatcher, drivers),
-        "8": show_drivers,  # Убрана лишняя лямбда
-        "9": show_cars,      # Убрана лишняя лямбда
-        "10": sys.exit,      # Использован sys.exit вместо exit()
+        "8": show_drivers,
+        "9": show_cars,
+        "10": sys.exit,
     }
 
     while True:
@@ -212,10 +212,14 @@ def main():
 
         choice = input("Выберите действие: ")
         action = menu_actions.get(choice, lambda: print("Неверный ввод!"))
-        if action == sys.exit:
-            action()  # Вызов sys.exit()
+        if action is sys.exit:
+            action()
+        elif choice == "8":
+            action(drivers)
+        elif choice == "9":
+            action(cars)
         else:
-            action(drivers) if choice == "8" else (action(cars) if choice == "9" else action())
+            action()
 
 
 if __name__ == "__main__":
