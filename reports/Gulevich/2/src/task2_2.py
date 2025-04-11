@@ -39,19 +39,20 @@ class Driver:
         self.current_trip = None
 
     def request_repair(self):
-        if self.current_car:
-            self.current_car.needs_repair = True
-            return f"Заявка на ремонт {self.current_car} отправлена."
-        return "Ошибка: у водителя нет автомобиля!"
+        if not self.current_car:
+            return "Ошибка: у водителя нет автомобиля!"
+        self.current_car.needs_repair = True
+        return f"Заявка на ремонт {self.current_car} отправлена."
 
     def complete_trip(self, car_status_ok: bool):
-        if self.current_trip:
-            self.current_trip.is_completed = True
-            if not car_status_ok:
-                self.current_car.needs_repair = True
-            self.current_trip = None
-            return f"Рейс завершен. Статус авто: {'OK' if car_status_ok else 'Требуется ремонт'}"
-        return "Ошибка: нет активного рейса!"
+        if not self.current_trip:
+            return "Ошибка: нет активного рейса!"
+
+        self.current_trip.is_completed = True
+        if not car_status_ok:
+            self.current_car.needs_repair = True
+        self.current_trip = None
+        return f"Рейс завершен. Статус авто: {'OK' if car_status_ok else 'Требуется ремонт'}"
 
     def __str__(self):
         status = " (отстранен)" if not self.is_active else ""
@@ -79,6 +80,7 @@ class Dispatcher:
             return f"Ошибка: {driver.name} отстранен от работы!"
         if car.needs_repair:
             return f"Ошибка: {car} требует ремонта!"
+
         driver.current_car = car
         driver.current_trip = trip
         return f"Назначено: {driver.name} на {trip} с {car}"
@@ -97,9 +99,9 @@ def create_car():
     if car_type == "1":
         max_load = float(input("Грузоподъемность (тонн): "))
         return Truck(car_id, model, max_load)
-    else:
-        seats = int(input("Количество мест: "))
-        return PassengerCar(car_id, model, seats)
+
+    seats = int(input("Количество мест: "))
+    return PassengerCar(car_id, model, seats)
 
 
 def create_driver():
@@ -116,11 +118,84 @@ def create_trip():
     return Trip(trip_id, destination)
 
 
+def show_drivers(drivers):
+    print("\nСписок водителей:")
+    for driver in drivers:
+        print(driver)
+
+
+def show_cars(cars):
+    print("\nСписок автомобилей:")
+    for car in cars:
+        print(car)
+
+
+def handle_assignment(dispatcher, drivers, cars, trips):
+    if not drivers or not cars or not trips:
+        print("Ошибка: сначала создайте водителей, автомобили и рейсы!")
+        return
+
+    print("Выберите водителя:")
+    for i, driver in enumerate(drivers):
+        print(f"{i + 1}. {driver}")
+    driver_idx = int(input("Номер водителя: ")) - 1
+
+    print("Выберите автомобиль:")
+    for i, car in enumerate(cars):
+        print(f"{i + 1}. {car}")
+    car_idx = int(input("Номер автомобиля: ")) - 1
+
+    print("Выберите рейс:")
+    for i, trip in enumerate(trips):
+        print(f"{i + 1}. {trip}")
+    trip_idx = int(input("Номер рейса: ")) - 1
+
+    print(dispatcher.assign_trip(drivers[driver_idx], cars[car_idx], trips[trip_idx]))
+
+
+def handle_complete_trip(drivers):
+    print("Выберите водителя для завершения рейса:")
+    for i, driver in enumerate(drivers):
+        print(f"{i + 1}. {driver}")
+    driver_idx = int(input("Номер водителя: ")) - 1
+    status = input("Авто в порядке? (1 - Да, 2 - Нет): ") == "1"
+    print(drivers[driver_idx].complete_trip(status))
+
+
+def handle_request_repair(drivers):
+    print("Выберите водителя:")
+    for i, driver in enumerate(drivers):
+        print(f"{i + 1}. {driver}")
+    driver_idx = int(input("Номер водителя: ")) - 1
+    print(drivers[driver_idx].request_repair())
+
+
+def handle_suspend_driver(dispatcher, drivers):
+    print("Выберите водителя для отстранения:")
+    for i, driver in enumerate(drivers):
+        print(f"{i + 1}. {driver}")
+    driver_idx = int(input("Номер водителя: ")) - 1
+    print(dispatcher.suspend_driver(drivers[driver_idx]))
+
+
 def main():
     dispatcher = Dispatcher(input("Введите ФИО диспетчера: "))
     cars = []
     drivers = []
     trips = []
+
+    menu_actions = {
+        "1": lambda: cars.append(create_car()),
+        "2": lambda: drivers.append(create_driver()),
+        "3": lambda: trips.append(create_trip()),
+        "4": lambda: handle_assignment(dispatcher, drivers, cars, trips),
+        "5": lambda: handle_complete_trip(drivers),
+        "6": lambda: handle_request_repair(drivers),
+        "7": lambda: handle_suspend_driver(dispatcher, drivers),
+        "8": lambda: show_drivers(drivers),
+        "9": lambda: show_cars(cars),
+        "10": lambda: exit(),
+    }
 
     while True:
         print("\n1. Добавить автомобиль")
@@ -133,62 +208,10 @@ def main():
         print("8. Показать всех водителей")
         print("9. Показать все автомобили")
         print("10. Выход")
-        choice = input("Выберите действие: ")
 
-        if choice == "1":
-            cars.append(create_car())
-        elif choice == "2":
-            drivers.append(create_driver())
-        elif choice == "3":
-            trips.append(create_trip())
-        elif choice == "4":
-            if not drivers or not cars or not trips:
-                print("Ошибка: сначала создайте водителей, автомобили и рейсы!")
-                continue
-            print("Выберите водителя:")
-            for i, driver in enumerate(drivers):
-                print(f"{i + 1}. {driver}")
-            driver_idx = int(input("Номер водителя: ")) - 1
-            print("Выберите автомобиль:")
-            for i, car in enumerate(cars):
-                print(f"{i + 1}. {car}")
-            car_idx = int(input("Номер автомобиля: ")) - 1
-            print("Выберите рейс:")
-            for i, trip in enumerate(trips):
-                print(f"{i + 1}. {trip}")
-            trip_idx = int(input("Номер рейса: ")) - 1
-            print(dispatcher.assign_trip(drivers[driver_idx], cars[car_idx], trips[trip_idx]))
-        elif choice == "5":
-            print("Выберите водителя для завершения рейса:")
-            for i, driver in enumerate(drivers):
-                print(f"{i + 1}. {driver}")
-            driver_idx = int(input("Номер водителя: ")) - 1
-            status = input("Авто в порядке? (1 - Да, 2 - Нет): ") == "1"
-            print(drivers[driver_idx].complete_trip(status))
-        elif choice == "6":
-            print("Выберите водителя:")
-            for i, driver in enumerate(drivers):
-                print(f"{i + 1}. {driver}")
-            driver_idx = int(input("Номер водителя: ")) - 1
-            print(drivers[driver_idx].request_repair())
-        elif choice == "7":
-            print("Выберите водителя для отстранения:")
-            for i, driver in enumerate(drivers):
-                print(f"{i + 1}. {driver}")
-            driver_idx = int(input("Номер водителя: ")) - 1
-            print(dispatcher.suspend_driver(drivers[driver_idx]))
-        elif choice == "8":
-            print("\nСписок водителей:")
-            for driver in drivers:
-                print(driver)
-        elif choice == "9":
-            print("\nСписок автомобилей:")
-            for car in cars:
-                print(car)
-        elif choice == "10":
-            break
-        else:
-            print("Неверный ввод!")
+        choice = input("Выберите действие: ")
+        action = menu_actions.get(choice, lambda: print("Неверный ввод!"))
+        action()
 
 
 if __name__ == "__main__":

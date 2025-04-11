@@ -54,16 +54,40 @@ class LimitedCharSet:
         return sorted(self.elements) == sorted(other.elements) and self.max_size == other.max_size
 
 
-def main():
-    print("Создание первого множества:")
-    max_size1 = int(input("Введите максимальную мощность множества: "))
-    initial_chars1 = input("Введите начальные символы (через пробел, или оставьте пустым): ").split()
-    set1 = LimitedCharSet(max_size1, initial_chars1 if initial_chars1 else None)
+def create_set(set_number):
+    print(f"Создание множества {set_number}:")
+    max_size = int(input("Введите максимальную мощность множества: "))
+    initial_chars = input("Введите начальные символы (через пробел, или оставьте пустым): ").split()
+    return LimitedCharSet(max_size, initial_chars if initial_chars else None)
 
-    print("\nСоздание второго множества:")
-    max_size2 = int(input("Введите максимальную мощность множества: "))
-    initial_chars2 = input("Введите начальные символы (через пробел, или оставьте пустым): ").split()
-    set2 = LimitedCharSet(max_size2, initial_chars2 if initial_chars2 else None)
+
+def manage_set(current_set):
+    while True:
+        print(f"\nТекущее множество: {current_set}")
+        print("1. Добавить символ")
+        print("2. Удалить символ")
+        print("3. Проверить наличие символа")
+        print("4. Назад")
+        sub_choice = input("Выберите действие (1-4): ")
+
+        if sub_choice == "1":
+            char = input("Введите символ для добавления: ").strip()
+            current_set.add(char)
+        elif sub_choice == "2":
+            char = input("Введите символ для удаления: ").strip()
+            current_set.remove(char)
+        elif sub_choice == "3":
+            char = input("Введите символ для проверки: ").strip()
+            current_set.contains(char)
+        elif sub_choice == "4":
+            break
+        else:
+            print("Неверный ввод!")
+
+
+def main():
+    set1 = create_set(1)
+    set2 = create_set(2)
 
     while True:
         print("\n1. Работа с множеством 1")
@@ -74,45 +98,20 @@ def main():
         choice = input("Выберите действие (1-5): ")
 
         if choice == "1":
-            current_set = set1
+            manage_set(set1)
         elif choice == "2":
-            current_set = set2
+            manage_set(set2)
         elif choice == "3":
             new_set = set1.union(set2)
             print("\nРезультат объединения:")
             print(new_set)
-            continue
         elif choice == "4":
             print("\nРезультат сравнения:")
             print("Множества идентичны." if set1 == set2 else "Множества различны.")
-            continue
         elif choice == "5":
             break
         else:
             print("Неверный ввод!")
-            continue
-
-        while True:
-            print(f"\nТекущее множество: {current_set}")
-            print("1. Добавить символ")
-            print("2. Удалить символ")
-            print("3. Проверить наличие символа")
-            print("4. Назад")
-            sub_choice = input("Выберите действие (1-4): ")
-
-            if sub_choice == "1":
-                char = input("Введите символ для добавления: ").strip()
-                current_set.add(char)
-            elif sub_choice == "2":
-                char = input("Введите символ для удаления: ").strip()
-                current_set.remove(char)
-            elif sub_choice == "3":
-                char = input("Введите символ для проверки: ").strip()
-                current_set.contains(char)
-            elif sub_choice == "4":
-                break
-            else:
-                print("Неверный ввод!")
 
 
 if __name__ == "__main__":
