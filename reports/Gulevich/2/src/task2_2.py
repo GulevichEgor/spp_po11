@@ -106,7 +106,7 @@ def create_car():
 
 
 def create_driver():
-    print"\nСоздание водителя:")
+    print("\nСоздание водителя:")
     driver_id = input("Введите ID водителя: ")
     name = input("Введите ФИО водителя: ")
     return Driver(driver_id, name)
