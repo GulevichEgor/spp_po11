@@ -1,5 +1,5 @@
+import sys
 from enum import Enum
-import sys  # Добавлено для использования sys.exit()
 
 
 class CarType(Enum):
@@ -79,7 +79,7 @@ class Dispatcher:
     def assign_trip(self, driver: Driver, car: Car, trip: Trip):
         if not driver.is_active:
             return f"Ошибка: {driver.name} отстранен от работы!"
-        if car.needs_repair:
+        if car.needs_repart:
             return f"Ошибка: {car} требует ремонта!"
 
         driver.current_car = car
@@ -106,7 +106,7 @@ def create_car():
 
 
 def create_driver():
-    print("\nСоздание водителя:")
+    print"\nСоздание водителя:")
     driver_id = input("Введите ID водителя: ")
     name = input("Введите ФИО водителя: ")
     return Driver(driver_id, name)
@@ -139,7 +139,7 @@ def handle_assignment(dispatcher, drivers, cars, trips):
     print("Выберите водителя:")
     for i, driver in enumerate(drivers):
         print(f"{i + 1}. {driver}")
-    driver_idx = int(input("Номер водителя: ")) - 1
+    driver_idx = int(input("Номер водитора: ")) - 1
 
     print("Выберите автомобиль:")
     for i, car in enumerate(cars):
