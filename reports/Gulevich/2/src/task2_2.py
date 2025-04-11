@@ -1,4 +1,5 @@
 from enum import Enum
+import sys  # Добавлено для использования sys.exit()
 
 
 class CarType(Enum):
@@ -94,7 +95,7 @@ class Dispatcher:
 def create_car():
     print("\nСоздание автомобиля:")
     car_id = input("Введите ID автомобиля: ")
-    model = input("Введите модель: ")
+    model = input("Вете модель: ")
     car_type = input("Тип (1 - Грузовик, 2 - Легковой): ")
     if car_type == "1":
         max_load = float(input("Грузоподъемность (тонн): "))
@@ -179,7 +180,7 @@ def handle_suspend_driver(dispatcher, drivers):
 
 
 def main():
-    dispatcher = Dispatcher(input("Введите ФИО диспетчера: "))
+    dispatcher = Dispatcher(input("Вете ФИО диспетчера: "))
     cars = []
     drivers = []
     trips = []
@@ -192,9 +193,9 @@ def main():
         "5": lambda: handle_complete_trip(drivers),
         "6": lambda: handle_request_repair(drivers),
         "7": lambda: handle_suspend_driver(dispatcher, drivers),
-        "8": lambda: show_drivers(drivers),
-        "9": lambda: show_cars(cars),
-        "10": lambda: exit(),
+        "8": show_drivers,  # Убрана лишняя лямбда
+        "9": show_cars,      # Убрана лишняя лямбда
+        "10": sys.exit,      # Использован sys.exit вместо exit()
     }
 
     while True:
@@ -211,7 +212,10 @@ def main():
 
         choice = input("Выберите действие: ")
         action = menu_actions.get(choice, lambda: print("Неверный ввод!"))
-        action()
+        if action == sys.exit:
+            action()  # Вызов sys.exit()
+        else:
+            action(drivers) if choice == "8" else (action(cars) if choice == "9" else action())
 
 
 if __name__ == "__main__":
